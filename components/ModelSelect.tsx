@@ -6,7 +6,7 @@ import {
   ReplicateIcon,
   VertexIcon,
 } from "@/lib/logos";
-import { ProviderKey } from "@/lib/provider-config";
+import { ProviderKey, BaseProviderKey } from "@/lib/provider-config";
 import { cn } from "@/lib/utils";
 import {
   Select,
@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { Toggle } from "./ui/toggle";
 import { ProviderTiming } from "@/lib/image-types";
 
 import { ImageDisplay } from "./ImageDisplay";
@@ -26,6 +27,7 @@ interface ModelSelectProps {
   models: string[];
   value: string;
   providerKey: ProviderKey;
+  baseProvider: BaseProviderKey;
   onChange: (value: string, providerKey: ProviderKey) => void;
   iconPath: string;
   color: string;
@@ -56,14 +58,16 @@ export function ModelSelect({
   models,
   value,
   providerKey,
+  baseProvider,
   onChange,
   enabled = true,
+  onToggle,
   image,
   timing,
   failed,
   modelId,
 }: ModelSelectProps) {
-  const Icon = PROVIDER_ICONS[providerKey];
+  const Icon = PROVIDER_ICONS[baseProvider];
 
   return (
     <Card
@@ -77,7 +81,7 @@ export function ModelSelect({
                 className="hover:opacity-80"
                 href={
                   "https://sdk.vercel.ai/providers/ai-sdk-providers/" +
-                  PROVIDER_LINKS[providerKey]
+                  PROVIDER_LINKS[baseProvider]
                 }
                 target="_blank"
               >
@@ -87,16 +91,29 @@ export function ModelSelect({
               </Link>
             </div>
             <div className="flex flex-col w-full">
-              <Link
-                className="hover:opacity-80"
-                href={
-                  "https://sdk.vercel.ai/providers/ai-sdk-providers/" +
-                  PROVIDER_LINKS[providerKey]
-                }
-                target="_blank"
-              >
-                <h3 className="font-semibold text-lg">{label}</h3>
-              </Link>
+              <div className="flex justify-between items-center">
+                <Link
+                  className="hover:opacity-80"
+                  href={
+                    "https://sdk.vercel.ai/providers/ai-sdk-providers/" +
+                    PROVIDER_LINKS[baseProvider]
+                  }
+                  target="_blank"
+                >
+                  <h3 className="font-semibold text-lg">{label}</h3>
+                </Link>
+                {onToggle && (
+                  <Toggle 
+                    pressed={enabled}
+                    onPressedChange={onToggle}
+                    aria-label={`Toggle ${label}`}
+                    size="sm"
+                    variant={enabled ? "default" : "outline"}
+                  >
+                    {enabled ? "On" : "Off"}
+                  </Toggle>
+                )}
+              </div>
               <div className="flex justify-between items-center w-full">
                 <Select
                   defaultValue={value}
@@ -140,7 +157,7 @@ export function ModelSelect({
 
         <ImageDisplay
           modelId={modelId}
-          provider={providerKey}
+          provider={baseProvider}
           image={image}
           timing={timing}
           failed={failed}

@@ -5,15 +5,11 @@ import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
-type QualityMode = "performance" | "quality";
-
 interface PromptInputProps {
   onSubmit: (prompt: string) => void;
   isLoading?: boolean;
   showProviders: boolean;
   onToggleProviders: () => void;
-  mode: QualityMode;
-  onModeChange: (mode: QualityMode) => void;
   suggestions: Suggestion[];
 }
 

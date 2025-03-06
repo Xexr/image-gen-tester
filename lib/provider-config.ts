@@ -1,8 +1,18 @@
-export type ProviderKey = "replicate" | "vertex" | "openai" | "fireworks";
-export type ModelMode = "performance" | "quality";
+export type BaseProviderKey = "replicate" | "vertex" | "openai" | "fireworks";
+export type ProviderKey = string; // Can now be any string identifier like "replicate-1", "replicate-2", etc.
 
-export const PROVIDERS: Record<
-  ProviderKey,
+// Provider configuration that includes provider type and model
+export interface ProviderConfig {
+  baseProvider: BaseProviderKey;
+  displayName: string;
+  iconPath: string;
+  color: string;
+  model: string;
+}
+
+// Base provider information
+export const BASE_PROVIDERS: Record<
+  BaseProviderKey,
   {
     displayName: string;
     iconPath: string;
@@ -57,23 +67,78 @@ export const PROVIDERS: Record<
   },
 };
 
-export const MODEL_CONFIGS: Record<ModelMode, Record<ProviderKey, string>> = {
-  performance: {
-    replicate: "stability-ai/stable-diffusion-3.5-large-turbo",
-    vertex: "imagen-3.0-fast-generate-001",
-    openai: "dall-e-2",
-    fireworks: "accounts/fireworks/models/flux-1-schnell-fp8",
+// Default providers setup - we can have multiple with the same base provider
+export const PROVIDERS: Record<ProviderKey, ProviderConfig> = {
+  "replicate-flux-schnell": {
+    baseProvider: "replicate",
+    displayName: "Replicate Flux Schnell",
+    iconPath: BASE_PROVIDERS.replicate.iconPath,
+    color: BASE_PROVIDERS.replicate.color,
+    model: "black-forest-labs/flux-schnell",
+  },    
+  "replicate-flux-dev": {
+    baseProvider: "replicate",
+    displayName: "Replicate Flux Dev",
+    iconPath: BASE_PROVIDERS.replicate.iconPath,
+    color: BASE_PROVIDERS.replicate.color,
+    model: "black-forest-labs/flux-dev",
+  },  
+  "replicate-flux-pro": {
+    baseProvider: "replicate",
+    displayName: "Replicate Flux Pro",
+    iconPath: BASE_PROVIDERS.replicate.iconPath,
+    color: BASE_PROVIDERS.replicate.color,
+    model: "black-forest-labs/flux-1.1-pro",
   },
-  quality: {
-    replicate: "stability-ai/stable-diffusion-3.5-large",
-    vertex: "imagen-3.0-generate-001",
-    openai: "dall-e-3",
-    fireworks: "accounts/fireworks/models/flux-1-dev-fp8",
+  "replicate-flux-ultra": {
+    baseProvider: "replicate",
+    displayName: "Replicate Flux Ultra",
+    iconPath: BASE_PROVIDERS.replicate.iconPath,
+    color: BASE_PROVIDERS.replicate.color,
+    model: "black-forest-labs/flux-1.1-pro-ultra",
+  },
+  "replicate-sd3.5": {
+    baseProvider: "replicate",
+    displayName: "Replicate SD 3.5",
+    iconPath: BASE_PROVIDERS.replicate.iconPath,
+    color: BASE_PROVIDERS.replicate.color,
+    model: "stability-ai/stable-diffusion-3.5-large",
+  },
+  "vertex": {
+    baseProvider: "vertex",
+    displayName: "Vertex AI",
+    iconPath: BASE_PROVIDERS.vertex.iconPath,
+    color: BASE_PROVIDERS.vertex.color,
+    model: "imagen-3.0-generate-001",
+  },
+  "openai": {
+    baseProvider: "openai",
+    displayName: "OpenAI",
+    iconPath: BASE_PROVIDERS.openai.iconPath,
+    color: BASE_PROVIDERS.openai.color,
+    model: "dall-e-3",
+  },
+  "fireworks": {
+    baseProvider: "fireworks",
+    displayName: "Fireworks",
+    iconPath: BASE_PROVIDERS.fireworks.iconPath,
+    color: BASE_PROVIDERS.fireworks.color,
+    model: "accounts/fireworks/models/flux-1-dev-fp8",
   },
 };
 
+// Available models for each provider
+export const getModelsForProvider = (providerKey: ProviderKey): string[] => {
+  const baseProvider = PROVIDERS[providerKey].baseProvider;
+  return BASE_PROVIDERS[baseProvider].models;
+};
+
 export const PROVIDER_ORDER: ProviderKey[] = [
-  "replicate",
+  "replicate-flux-schnell",
+  "replicate-flux-dev",
+  "replicate-flux-pro",
+  "replicate-flux-ultra",
+  "replicate-sd3.5",
   "vertex",
   "openai",
   "fireworks",

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ImageError, ImageResult, ProviderTiming } from "@/lib/image-types";
-import { initializeProviderRecord, ProviderKey } from "@/lib/provider-config";
+import { initializeProviderRecord, ProviderKey, PROVIDERS } from "@/lib/provider-config";
 
 interface UseImageGenerationReturn {
   images: ImageResult[];
@@ -67,14 +67,18 @@ export function useImageGeneration(): UseImageGenerationReturn {
       // Helper to fetch a single provider
       const generateImage = async (provider: ProviderKey, modelId: string) => {
         const startTime = now;
+        const providerConfig = PROVIDERS[provider];
+        const baseProvider = providerConfig.baseProvider;
+        
         console.log(
-          `Generate image request [provider=${provider}, modelId=${modelId}]`,
+          `Generate image request [provider=${provider}, baseProvider=${baseProvider}, modelId=${modelId}]`,
         );
         try {
           const request = {
             prompt,
-            provider,
+            provider: baseProvider, // Send the base provider type (e.g., "replicate") to the API
             modelId,
+            providerKey: provider, // Send the full provider key (e.g., "replicate-sd3.5") for reference
           };
 
           const response = await fetch("/api/generate-images", {

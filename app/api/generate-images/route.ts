@@ -4,7 +4,7 @@ import { openai } from "@ai-sdk/openai";
 import { fireworks } from "@ai-sdk/fireworks";
 import { replicate } from "@ai-sdk/replicate";
 import { vertex } from "@ai-sdk/google-vertex/edge";
-import { ProviderKey } from "@/lib/provider-config";
+import { BaseProviderKey } from "@/lib/provider-config";
 import { GenerateImageRequest } from "@/lib/api-types";
 
 /**
@@ -13,7 +13,7 @@ import { GenerateImageRequest } from "@/lib/api-types";
  */
 const TIMEOUT_MILLIS = 55 * 1000;
 
-const DEFAULT_IMAGE_SIZE = "1024x1024";
+const DEFAULT_IMAGE_SIZE = "512x512";
 const DEFAULT_ASPECT_RATIO = "1:1";
 
 interface ProviderConfig {
@@ -21,7 +21,7 @@ interface ProviderConfig {
   dimensionFormat: "size" | "aspectRatio";
 }
 
-const providerConfig: Record<ProviderKey, ProviderConfig> = {
+const providerConfig: Record<BaseProviderKey, ProviderConfig> = {
   openai: {
     createImageModel: openai.image,
     dimensionFormat: "size",
@@ -54,17 +54,17 @@ const withTimeout = <T>(
 
 export async function POST(req: NextRequest) {
   const requestId = Math.random().toString(36).substring(7);
-  const { prompt, provider, modelId } =
+  const { prompt, provider, modelId, providerKey } =
     (await req.json()) as GenerateImageRequest;
 
   try {
-    if (!prompt || !provider || !modelId || !providerConfig[provider]) {
+    if (!prompt || !provider || !modelId || !providerConfig[provider as BaseProviderKey]) {
       const error = "Invalid request parameters";
       console.error(`${error} [requestId=${requestId}]`);
       return NextResponse.json({ error }, { status: 400 });
     }
 
-    const config = providerConfig[provider];
+    const config = providerConfig[provider as BaseProviderKey];
     const startstamp = performance.now();
     const generatePromise = generateImage({
       model: config.createImageModel(modelId),
@@ -80,19 +80,19 @@ export async function POST(req: NextRequest) {
     }).then(({ image, warnings }) => {
       if (warnings?.length > 0) {
         console.warn(
-          `Warnings [requestId=${requestId}, provider=${provider}, model=${modelId}]: `,
+          `Warnings [requestId=${requestId}, provider=${provider}, providerKey=${providerKey}, model=${modelId}]: `,
           warnings
         );
       }
       console.log(
-        `Completed image request [requestId=${requestId}, provider=${provider}, model=${modelId}, elapsed=${(
+        `Completed image request [requestId=${requestId}, provider=${provider}, providerKey=${providerKey}, model=${modelId}, elapsed=${(
           (performance.now() - startstamp) /
           1000
         ).toFixed(1)}s].`
       );
 
       return {
-        provider,
+        provider: providerKey || provider, // Use the full provider key for the response
         image: image.base64,
       };
     });
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
     // Log full error detail on the server, but return a generic error message
     // to avoid leaking any sensitive information to the client.
     console.error(
-      `Error generating image [requestId=${requestId}, provider=${provider}, model=${modelId}]: `,
+      `Error generating image [requestId=${requestId}, provider=${provider}, providerKey=${providerKey}, model=${modelId}]: `,
       error
     );
     return NextResponse.json(

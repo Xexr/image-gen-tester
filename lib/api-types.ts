@@ -1,9 +1,10 @@
-import { ProviderKey } from "./provider-config";
+import { BaseProviderKey, ProviderKey } from "./provider-config";
 
 export interface GenerateImageRequest {
   prompt: string;
-  provider: ProviderKey;
+  provider: BaseProviderKey;
   modelId: string;
+  providerKey?: ProviderKey;
 }
 
 export interface GenerateImageResponse {

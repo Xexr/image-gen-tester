@@ -5,12 +5,12 @@ import { ModelSelect } from "@/components/ModelSelect";
 import { PromptInput } from "@/components/PromptInput";
 import { ModelCardCarousel } from "@/components/ModelCardCarousel";
 import {
-  MODEL_CONFIGS,
   PROVIDERS,
   PROVIDER_ORDER,
   ProviderKey,
-  ModelMode,
   initializeProviderRecord,
+  getModelsForProvider,
+  BaseProviderKey,
 } from "@/lib/provider-config";
 import { Suggestion } from "@/lib/suggestions";
 import { useImageGeneration } from "@/hooks/use-image-generation";
@@ -31,21 +31,18 @@ export function ImagePlayground({
   } = useImageGeneration();
 
   const [showProviders, setShowProviders] = useState(true);
-  const [selectedModels, setSelectedModels] = useState<
-    Record<ProviderKey, string>
-  >(MODEL_CONFIGS.performance);
+  // Initialize selected models from the default model values in PROVIDERS
+  const [selectedModels, setSelectedModels] = useState<Record<ProviderKey, string>>(
+    Object.fromEntries(
+      Object.entries(PROVIDERS).map(([key, config]) => [key, config.model])
+    )
+  );
   const [enabledProviders, setEnabledProviders] = useState(
     initializeProviderRecord(true),
   );
-  const [mode, setMode] = useState<ModelMode>("performance");
+
   const toggleView = () => {
     setShowProviders((prev) => !prev);
-  };
-
-  const handleModeChange = (newMode: ModelMode) => {
-    setMode(newMode);
-    setSelectedModels(MODEL_CONFIGS[newMode]);
-    setShowProviders(true);
   };
 
   const handleModelChange = (providerKey: ProviderKey, model: string) => {
@@ -59,12 +56,9 @@ export function ImagePlayground({
     }));
   };
 
-  const providerToModel = {
-    replicate: selectedModels.replicate,
-    vertex: selectedModels.vertex,
-    openai: selectedModels.openai,
-    fireworks: selectedModels.fireworks,
-  };
+  const providerToModel = Object.fromEntries(
+    Object.keys(selectedModels).map(provider => [provider, selectedModels[provider]])
+  );
 
   const handlePromptSubmit = (newPrompt: string) => {
     const activeProviders = PROVIDER_ORDER.filter((p) => enabledProviders[p]);
@@ -73,6 +67,34 @@ export function ImagePlayground({
     }
     setShowProviders(false);
   };
+
+  const getModelProps = () =>
+    PROVIDER_ORDER.map((key) => {
+      const provider = PROVIDERS[key];
+      const imageItem = images.find((img) => img.provider === key);
+      const imageData = imageItem?.image;
+      const modelId = imageItem?.modelId ?? provider.model;
+      const timing = timings[key];
+
+      return {
+        label: provider.displayName,
+        models: getModelsForProvider(key),
+        value: selectedModels[key],
+        providerKey: key,
+        onChange: (model: string, providerKey: ProviderKey) =>
+          handleModelChange(providerKey, model),
+        iconPath: provider.iconPath,
+        color: provider.color,
+        enabled: enabledProviders[key],
+        onToggle: (enabled: boolean) =>
+          handleProviderToggle(key, enabled),
+        image: imageData,
+        modelId,
+        timing,
+        failed: failedProviders.includes(key),
+        baseProvider: provider.baseProvider,
+      };
+    });
 
   return (
     <div className="min-h-screen bg-background py-8 px-4 sm:px-6 lg:px-8">
@@ -83,39 +105,10 @@ export function ImagePlayground({
           isLoading={isLoading}
           showProviders={showProviders}
           onToggleProviders={toggleView}
-          mode={mode}
-          onModeChange={handleModeChange}
           suggestions={suggestions}
         />
         <>
           {(() => {
-            const getModelProps = () =>
-              (Object.keys(PROVIDERS) as ProviderKey[]).map((key) => {
-                const provider = PROVIDERS[key];
-                const imageItem = images.find((img) => img.provider === key);
-                const imageData = imageItem?.image;
-                const modelId = imageItem?.modelId ?? "N/A";
-                const timing = timings[key];
-
-                return {
-                  label: provider.displayName,
-                  models: provider.models,
-                  value: selectedModels[key],
-                  providerKey: key,
-                  onChange: (model: string, providerKey: ProviderKey) =>
-                    handleModelChange(providerKey, model),
-                  iconPath: provider.iconPath,
-                  color: provider.color,
-                  enabled: enabledProviders[key],
-                  onToggle: (enabled: boolean) =>
-                    handleProviderToggle(key, enabled),
-                  image: imageData,
-                  modelId,
-                  timing,
-                  failed: failedProviders.includes(key),
-                };
-              });
-
             return (
               <>
                 <div className="md:hidden">
