@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ModelSelect } from "@/components/ModelSelect";
 import { PromptInput } from "@/components/PromptInput";
 import { ModelCardCarousel } from "@/components/ModelCardCarousel";
@@ -40,6 +40,21 @@ export function ImagePlayground({
   const [enabledProviders, setEnabledProviders] = useState(
     initializeProviderRecord(true),
   );
+
+  // Calculate the total cost of enabled providers
+  const totalCost = useMemo(() => {
+    const enabledProviderKeys = PROVIDER_ORDER.filter(key => enabledProviders[key]);
+    if (enabledProviderKeys.length === 0) return "0.00";
+
+    const totalCostValue = enabledProviderKeys.reduce((sum, key) => {
+      // Remove "$" and convert to number
+      const costValue = parseFloat(PROVIDERS[key].cost.replace(/[^0-9.]/g, ''));
+      return sum + costValue;
+    }, 0);
+
+    // Format the total cost with 2 decimal places
+    return totalCostValue.toFixed(2);
+  }, [enabledProviders]);
 
   const toggleView = () => {
     setShowProviders((prev) => !prev);
@@ -93,12 +108,13 @@ export function ImagePlayground({
         timing,
         failed: failedProviders.includes(key),
         baseProvider: provider.baseProvider,
+        cost: provider.cost,
       };
     });
 
   return (
     <div className="min-h-screen bg-background py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="mx-auto">
         <Header />
         <PromptInput
           onSubmit={handlePromptSubmit}
@@ -106,6 +122,7 @@ export function ImagePlayground({
           showProviders={showProviders}
           onToggleProviders={toggleView}
           suggestions={suggestions}
+          totalCost={totalCost}
         />
         <>
           {(() => {
@@ -114,7 +131,7 @@ export function ImagePlayground({
                 <div className="md:hidden">
                   <ModelCardCarousel models={getModelProps()} />
                 </div>
-                <div className="hidden md:grid md:grid-cols-2 2xl:grid-cols-4 gap-8">
+                <div className="hidden md:grid md:grid-cols-2 2xl:grid-cols-6 gap-8">
                   {getModelProps().map((props) => (
                     <ModelSelect key={props.label} {...props} />
                   ))}

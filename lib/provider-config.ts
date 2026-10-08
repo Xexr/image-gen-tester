@@ -8,6 +8,7 @@ export interface ProviderConfig {
   iconPath: string;
   color: string;
   model: string;
+  cost: string; // Cost per image, e.g. "$0.02"
 }
 
 // Base provider information
@@ -75,6 +76,7 @@ export const PROVIDERS: Record<ProviderKey, ProviderConfig> = {
     iconPath: BASE_PROVIDERS.replicate.iconPath,
     color: BASE_PROVIDERS.replicate.color,
     model: "black-forest-labs/flux-schnell",
+    cost: "$0.003",
   },    
   "replicate-flux-dev": {
     baseProvider: "replicate",
@@ -82,6 +84,7 @@ export const PROVIDERS: Record<ProviderKey, ProviderConfig> = {
     iconPath: BASE_PROVIDERS.replicate.iconPath,
     color: BASE_PROVIDERS.replicate.color,
     model: "black-forest-labs/flux-dev",
+    cost: "$0.025",
   },  
   "replicate-flux-pro": {
     baseProvider: "replicate",
@@ -89,6 +92,7 @@ export const PROVIDERS: Record<ProviderKey, ProviderConfig> = {
     iconPath: BASE_PROVIDERS.replicate.iconPath,
     color: BASE_PROVIDERS.replicate.color,
     model: "black-forest-labs/flux-1.1-pro",
+    cost: "$0.04",
   },
   "replicate-flux-ultra": {
     baseProvider: "replicate",
@@ -96,13 +100,47 @@ export const PROVIDERS: Record<ProviderKey, ProviderConfig> = {
     iconPath: BASE_PROVIDERS.replicate.iconPath,
     color: BASE_PROVIDERS.replicate.color,
     model: "black-forest-labs/flux-1.1-pro-ultra",
+    cost: "$0.06",
   },
-  "replicate-sd3.5": {
+  "recraft-v3": {
     baseProvider: "replicate",
-    displayName: "Replicate SD 3.5",
+    displayName: "Recraft V3",
+    iconPath: BASE_PROVIDERS.replicate.iconPath,
+    color: BASE_PROVIDERS.replicate.color,
+    model: "recraft-ai/recraft-v3",
+    cost: "$0.04",
+  },
+  "luma-photon": {
+    baseProvider: "replicate",
+    displayName: "Luma Photon",
+    iconPath: BASE_PROVIDERS.replicate.iconPath,
+    color: BASE_PROVIDERS.replicate.color,
+    model: "luma/photon",
+    cost: "$0.03",
+  },
+  "luma-photon-flash": {
+    baseProvider: "replicate",
+    displayName: "Luma Photon Flash",
+    iconPath: BASE_PROVIDERS.replicate.iconPath,
+    color: BASE_PROVIDERS.replicate.color,
+    model: "luma/photon-flash",
+    cost: "$0.01",
+  },
+  "replicate-sd3.5-large-turbo": {
+    baseProvider: "replicate",
+    displayName: "Replicate SD 3.5 Large Turbo",
+    iconPath: BASE_PROVIDERS.replicate.iconPath,
+    color: BASE_PROVIDERS.replicate.color,
+    model: "stability-ai/stable-diffusion-3.5-large-turbo",
+    cost: "$0.04",
+  },
+  "replicate-sd3.5-large": {
+    baseProvider: "replicate",
+    displayName: "Replicate SD 3.5 Large",
     iconPath: BASE_PROVIDERS.replicate.iconPath,
     color: BASE_PROVIDERS.replicate.color,
     model: "stability-ai/stable-diffusion-3.5-large",
+    cost: "$0.065",
   },
   "vertex": {
     baseProvider: "vertex",
@@ -110,6 +148,7 @@ export const PROVIDERS: Record<ProviderKey, ProviderConfig> = {
     iconPath: BASE_PROVIDERS.vertex.iconPath,
     color: BASE_PROVIDERS.vertex.color,
     model: "imagen-3.0-generate-001",
+    cost: "$0.04",
   },
   "openai": {
     baseProvider: "openai",
@@ -117,6 +156,7 @@ export const PROVIDERS: Record<ProviderKey, ProviderConfig> = {
     iconPath: BASE_PROVIDERS.openai.iconPath,
     color: BASE_PROVIDERS.openai.color,
     model: "dall-e-3",
+    cost: "$0.04",
   },
   "fireworks": {
     baseProvider: "fireworks",
@@ -124,6 +164,7 @@ export const PROVIDERS: Record<ProviderKey, ProviderConfig> = {
     iconPath: BASE_PROVIDERS.fireworks.iconPath,
     color: BASE_PROVIDERS.fireworks.color,
     model: "accounts/fireworks/models/flux-1-dev-fp8",
+    cost: "$0.03",
   },
 };
 
@@ -138,9 +179,13 @@ export const PROVIDER_ORDER: ProviderKey[] = [
   "replicate-flux-dev",
   "replicate-flux-pro",
   "replicate-flux-ultra",
-  "replicate-sd3.5",
-  "vertex",
+  "recraft-v3",
+  "luma-photon",
+  "luma-photon-flash",
+  "replicate-sd3.5-large-turbo",
+  "replicate-sd3.5-large",
   "openai",
+  "vertex",
   "fireworks",
 ];
 

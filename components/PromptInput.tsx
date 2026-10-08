@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { ArrowUpRight, ArrowUp, RefreshCw } from "lucide-react";
+import { ArrowUpRight, ArrowUp, RefreshCw, DollarSign } from "lucide-react";
 import { getRandomSuggestions, Suggestion } from "@/lib/suggestions";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "./ui/tooltip";
 
 interface PromptInputProps {
   onSubmit: (prompt: string) => void;
@@ -11,12 +12,14 @@ interface PromptInputProps {
   showProviders: boolean;
   onToggleProviders: () => void;
   suggestions: Suggestion[];
+  totalCost?: string;
 }
 
 export function PromptInput({
   suggestions: initSuggestions,
   isLoading,
   onSubmit,
+  totalCost,
 }: PromptInputProps) {
   const [input, setInput] = useState("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>(initSuggestions);
@@ -90,17 +93,34 @@ export function PromptInput({
                 </button>
               ))}
             </div>
-            <button
-              onClick={handleSubmit}
-              disabled={isLoading || !input.trim()}
-              className="h-8 w-8 rounded-full bg-black flex items-center justify-center disabled:opacity-50"
-            >
-              {isLoading ? (
-                <Spinner className="w-3 h-3 text-white" />
-              ) : (
-                <ArrowUp className="w-5 h-5 text-white" />
+            <div className="flex items-center gap-2">
+              {totalCost && (
+                <TooltipProvider>
+                  <Tooltip delayDuration={100}>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-1 text-xs font-medium text-zinc-600 bg-background px-2 py-1 rounded-md">
+                        <DollarSign className="w-3 h-3" />
+                        <span>{totalCost}</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      <p>Total cost for enabled models</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )}
-            </button>
+              <button
+                onClick={handleSubmit}
+                disabled={isLoading || !input.trim()}
+                className="h-8 w-8 rounded-full bg-black flex items-center justify-center disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <Spinner className="w-3 h-3 text-white" />
+                ) : (
+                  <ArrowUp className="w-5 h-5 text-white" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>

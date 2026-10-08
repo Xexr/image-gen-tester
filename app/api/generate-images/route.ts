@@ -13,7 +13,7 @@ import { GenerateImageRequest } from "@/lib/api-types";
  */
 const TIMEOUT_MILLIS = 55 * 1000;
 
-const DEFAULT_IMAGE_SIZE = "512x512";
+const DEFAULT_IMAGE_SIZE = "1024x1024";
 const DEFAULT_ASPECT_RATIO = "1:1";
 
 interface ProviderConfig {

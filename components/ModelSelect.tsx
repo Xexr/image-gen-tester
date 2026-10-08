@@ -37,6 +37,7 @@ interface ModelSelectProps {
   timing?: ProviderTiming;
   failed?: boolean;
   modelId: string;
+  cost: string;
 }
 
 const PROVIDER_ICONS = {
@@ -66,12 +67,13 @@ export function ModelSelect({
   timing,
   failed,
   modelId,
+  cost,
 }: ModelSelectProps) {
   const Icon = PROVIDER_ICONS[baseProvider];
 
   return (
     <Card
-      className={cn(`w-full transition-opacity`, enabled ? "" : "opacity-50")}
+      className={cn(`w-full transition-opacity relative group`, enabled ? "" : "opacity-50")}
     >
       <CardContent className="pt-6 h-full">
         <div className="flex items-center justify-between gap-2 mb-4">
@@ -155,13 +157,16 @@ export function ModelSelect({
           </div>
         </div>
 
-        <ImageDisplay
-          modelId={modelId}
-          provider={baseProvider}
-          image={image}
-          timing={timing}
-          failed={failed}
-        />
+        <div className="relative">
+          <ImageDisplay
+            modelId={modelId}
+            provider={baseProvider}
+            image={image}
+            timing={timing}
+            failed={failed}
+            costBadge={cost}
+          />
+        </div>
       </CardContent>
     </Card>
   );
